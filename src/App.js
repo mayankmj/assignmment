@@ -1,25 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import TableContainer from './Components/TableContainer';
+import Login from './Pages/Login';
+import Upload from './Pages/Upload';
+import {auth} from './Pages/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
-function App() {
+
+const App = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (User) => {
+      setUser(User);
+      setLoading(false);
+      console.log(User);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {user ? (
+        <Upload userDetails={user}/>
+      ) : (
+        <Login />
+      )}
     </div>
   );
-}
+};
 
 export default App;
